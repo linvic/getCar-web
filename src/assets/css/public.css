@@ -1,0 +1,38 @@
+/*面包屑*/
+.breadcrumb {
+	color: #606266;
+	margin-bottom: 20px;
+}
+.breadcrumb > span {
+	vertical-align: middle;
+}
+.breadcrumb .el-breadcrumb {
+	display: inline-block;
+	vertical-align: middle;
+}
+
+/* 对齐 */
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+/*// 上下左右常规边距*/
+.m-t { margin-top: 20px; }
+.m-b { margin-bottom: 20px; }
+.m-l { margin-left: 20px; }
+.m-r { margin-right: 20px; }
+
+.p-t { padding-top: 20px; }
+.p-b { padding-bottom: 20px; }
+.p-l { padding-left: 20px; }
+.p-r { padding-right: 20px; }
+
+.hr-line-dashed {
+    border-top: 1px dashed #e7eaec;
+    color: #fff;
+    background-color: #fff;
+    height: 1px;
+    margin: 20px 0;
+}
+.el-pagination .el-pagination__jump .el-input__inner {
+    box-shadow: none;
+}
