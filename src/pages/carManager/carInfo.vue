@@ -66,7 +66,7 @@
 						<el-option label="编号" value="2"></el-option>
 					</el-select>
 					<el-input v-model="filterForm.clear_user" placeholder="请输入品牌、车系、VIN码等" style="width: 300px;"></el-input>
-					<el-button type="primary" @click="onSubmit" style="margin-left: 20px">搜索</el-button>
+					<el-button type="primary" style="margin-left: 20px">搜索</el-button>
 					<el-button type="primary" @click="alert('敬请期待')">导入</el-button>
 					<el-button type="primary" @click="alert('敬请期待')">导出</el-button>
 				</el-form-item>
@@ -126,7 +126,7 @@
 							v-if="saleStatus < 3"
 							size="mini"
 							type="primary"
-							@click="alert(scope.row.id)" plain>编辑</el-button>
+							@click="listEditor(scope.row.id)" plain>编辑</el-button>
 						<el-button
 							v-if="saleStatus < 3"
 							size="mini"
@@ -155,7 +155,10 @@
 			</div>
 		</el-card>
 
-        <el-dialog v-if="dialogCarAudit" title="新增店铺" :visible.sync="dialogCarAudit" append-to-body width="900px">
+        <el-dialog v-if="dialogCarEditor" title="编辑车辆信息" :visible.sync="dialogCarEditor" append-to-body width="900px">
+            <carEditor @closeDialog="closeDialog" @parentGetDataList="getDataList" :id="editorId"></carEditor>
+        </el-dialog>
+        <el-dialog v-if="dialogCarAudit" title="审核车辆" :visible.sync="dialogCarAudit" append-to-body width="900px">
             <carAudit @closeDialog="closeDialog" @parentGetDataList="getDataList"></carAudit>
         </el-dialog>
 	</div>
@@ -163,14 +166,18 @@
 
 <script>
 import carAudit from './carAudit'
+import carEditor from './carEditor'
+
+import api from '@/api/carManager'
 export default {
 	components: {
-		carAudit
+		carAudit,
+		carEditor
 	},
 	data () {
 		return {
 			saleStatus: 0,
-			editId: null, // 编辑id
+			editorId: null, // 编辑id
 			pageIndex: 1, // 当前页码
 			pageSize: 10, // 页码大小
 			dataTotal: 0, // 数据总数
@@ -190,6 +197,7 @@ export default {
 				brand: '0', // 品牌
 				clear_user: ''
 			},
+			dialogCarEditor: false, // 车辆编辑弹层
 			dialogCarAudit: false // 车辆审核弹层
 		}
 	},
@@ -216,35 +224,30 @@ export default {
 		},
 		getDataList() { // 分页获取
 			this.loading = false;
-			// this.$https.get('/api/Customer/page', {
-			// 	params: {
-			// 		currentPage: this.pageIndex,
-			// 		pageSize: this.pageSize,
-			// 		customer_classify: 999,
-			// 		enterprise_name: this.searchForm.enterprise_name,
-			// 		customer_name: this.searchForm.customer_name,
-			// 		telephone: this.searchForm.telephone,
-			// 		theme: this.searchForm.theme,
-			// 		user_id: 0,
-			// 		classification: this.formFilter.classification
-			// 	}
-			// }).then((result) => {
-			// 	if (result.data.code == 0) {
-			// 		this.tableData = result.data.data.Items;
-			// 		this.dataTotal = result.data.data.Total;
+			api.getCarList({
+				pageIndex: this.pageIndex,
+				pageSize: this.pageSize
+			}).then((result) => {
+				if (result.code == 0) {
+					this.tableData = result.data.Items;
+					this.dataTotal = result.data.Total;
 
-			// 		this.loading = false;
-			// 	} else {
-			// 		this.$message({
-			// 			type: 'error',
-			// 			showClose: true,
-			// 			message: result.data.message
-			// 		})
-			// 	}
-			// })
+					this.loading = false;
+				} else {
+					this.$message({
+						type: 'error',
+						showClose: true,
+						message: result.msg
+					})
+				}
+			})
+		},
+		listEditor(id) { // 编辑
+			this.editorId = parseInt(id);
+			this.dialogCarEditor = true;
 		},
 		audit(id) { // 审核
-			this.editId = parseInt(editId);
+			this.editorId = parseInt(id);
 			this.dialogCarAudit = true;
 		}
 	}

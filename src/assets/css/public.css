@@ -36,3 +36,37 @@
 .el-pagination .el-pagination__jump .el-input__inner {
     box-shadow: none;
 }
+.sidebar.isCollapse + .content {
+    left: 64px;
+}
+
+
+
+/*
+*
+*
+element重写
+*
+*
+*/
+
+/*修复safari下input的placeholder不居中的问题*/
+.el-range-editor--medium > * {
+    vertical-align: top;
+}
+/*safari下时间区间选择器错位问题*/
+.el-date-editor {
+    vertical-align: top;
+}
+/*safari下时间区间选择器图标不显示问题*/
+.el-date-editor .el-range__icon {
+    float: initial;
+}
+/*修复safari下input的placeholder不居中的问题*/
+.el-input--medium .el-input__inner {
+    line-height: 1px;
+}
+/*safari 下 radio tab 切换间距问题*/
+.el-radio-button, .el-radio-button__inner {
+    float: left;
+}

@@ -5,10 +5,10 @@
 			<div class="treeBox">
 				
 				<el-form-item label="角色ID">
-					<p>---</p>
+					<p>{{form.id}}</p>
 				</el-form-item>
 				<el-form-item label="创建时间">
-					<p>---</p>
+					<p>{{form.createTime}}</p>
 				</el-form-item>
 				<el-form-item label="角色名" prop="roleName">
 					<el-input v-model="form.roleName"></el-input>
@@ -56,6 +56,8 @@ export default {
 	data () {
 		return {
 			form: {
+				id: '---', // ID
+				createTime: '---', // 创建时间
 				roleName: '', // 角色名
 				roleDesc: '', // 角色描述
 				roleLev: '', // 角色等级
@@ -78,6 +80,11 @@ export default {
             }
 		}
 	},
+	props: {
+		id: {
+			type: Number
+		}
+	},
 	created() {
 		this.getDataBase();
 	},
@@ -87,10 +94,50 @@ export default {
 	},
 	methods: {
 		getDataBase() { // 获取基础数据
-            api.resourcesList().then((result) => {
+            api.resourcesList({roleId: this.id}).then((result) => {
                 if (result.code == 0) {
                     this.treeData = result.data;
                     
+                    this.getOldData();
+
+                } else {
+                    this.$message({
+                        type: 'error',
+                        showClose: true,
+                        message: result.msg
+                    })
+                }
+            })
+        },
+        getOldData() { // 获取编辑数据
+
+            api.editorRoles({id: this.id}).then((result) => {
+                if (result.code == 0) {
+                    let _data = result.data;
+
+                    this.form.id = _data.id;
+					this.form.createTime = _data.createTime; // 创建时间
+					this.form.roleName = _data.roleName; // 角色名
+					this.form.roleDesc = _data.roleDesc; // 角色描述
+					this.form.roleLev = _data.roleLev; // 角色等级
+
+                    // for(var item of _data) {
+                    //     this.$refs.tree.setChecked(item.app_id, true, false);
+                    // }
+
+                    // 对已选的进行勾选操作
+                    let _this = this;
+                    function _deepFun (data) {
+                    	for(var item of data) {
+	                    	if (item.checked) { // 判断是否已选
+	                    		_this.$refs.tree.setChecked(item.id, true, false);
+	                    	}
+	                    	if (item.childs) {
+	                    		_deepFun(item.childs);
+	                    	}
+	                    }
+                    }
+                    _deepFun(this.treeData);
                 } else {
                     this.$message({
                         type: 'error',
@@ -114,22 +161,23 @@ export default {
 	                    return false;
 		            }
 		            let _postData = {
+		            	id: this.id,
 						roleDesc: this.form.roleDesc,
 						roleName: this.form.roleName,
 						roleLev: this.form.roleLev,
 						roleState: 1,
 						menus: checkedKeys
 		            };
-		            api.addRole(_postData).then((result) => {
+		            api.updateRoles(_postData).then((result) => {
 		                if (result.code == 0) {
 		                    this.$message({
 		                        type: 'success',
 		                        showClose: true,
-		                        message: '新增成功',
+		                        message: '编辑成功',
 		                        duration: 1500,
 		                        onClose: () => {
 		                            // 关闭当前dialog，
-		                            this.closeDialog('dialogRoleAdd');
+		                            this.closeDialog('dialogRoleEditor');
 		                            // 刷新列表
 		                            this.$emit('parentGetDataList');
 		                        }
@@ -160,7 +208,7 @@ export default {
 		closeDialog(name) { // 关闭当前
 			// this.$refs.form.resetFields(); // 重置表单
 			if (!name) {
-				this.$emit('closeDialog', 'dialogRoleAdd'); // 执行父组件关闭方法
+				this.$emit('closeDialog', 'dialogRoleEditor'); // 执行父组件关闭方法
 			} else {
 				this.$emit('closeDialog', name); // 执行父组件关闭方法
 			}

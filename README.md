@@ -1,9 +1,3 @@
-# car-mall
-
-> A Vue.js project
-
-## Build Setup
-
 ``` bash
 # install dependencies
 npm install
@@ -18,4 +12,23 @@ npm run build
 npm run build --report
 ```
 
-For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+一、 elementUI 
+	自定义主题：@/assets/css/element-variables.scss文件重写主题色
+
+二、 整体框架（上左右结构）
+	@/components/Layout
+
+三、 路由配置
+	@/route
+
+四、 es6兼容解决
+	安装babel-polyfill
+
+五、 axios数据交互/token验证
+	@/api/https
+	在拦截器上Token验证及请求loading效果
+
+六、 字体图标iconfont
+	static/font/iconfont
+
+六、 图表使用v-charts

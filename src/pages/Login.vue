@@ -19,6 +19,7 @@
 </template>
 
 <script>
+import api from '@/api/base'
 export default {
     data () {
         var validateAcc = (rule, value, callback) => {
@@ -65,28 +66,23 @@ export default {
         submitForm(formName) {
             this.$refs[formName].validate((valid) => {
                 if (valid) {
-                    this.$router.replace('/');
-                    // this.$https.post('/api/Account/login', {
-                    //     user_account: this.loginForm.account,
-                    //     user_pwd: this.loginForm.password
-                    // })
-                    // .then((result) => {
-                    //     if (result.data.code == 0) {
-                    //         console.log(result.data);
-                    //         // 将当前登录账号存储
-                    //         localStorage.setItem('UserAccount', this.loginForm.account);
-                    //         this.$router.replace('/Index');
-                    //     } else {
-                    //         this.$message({
-                    //             type: 'error',
-                    //             showClose: true,
-                    //             message: result.data.message
-                    //         })
-                    //     }
-                    // })
-                    // .catch((error) => {
-                    //     console.log('登录请求失败',error)
-                    // })
+                    api.login('acct=' + this.loginForm.account + '&pwd=' + this.loginForm.password)
+                    .then((result) => {
+                        if (result.code === 0) {
+                            // 将当前登录账号存储
+                            localStorage.setItem('Token', result.data.token);
+                            this.$router.replace('/');
+                        } else {
+                            this.$message({
+                                type: 'error',
+                                showClose: true,
+                                message: result.msg
+                            })
+                        }
+                    })
+                    .catch((error) => {
+                        console.log('登录请求失败',error)
+                    })
                 } else {
                     return false;
                 }

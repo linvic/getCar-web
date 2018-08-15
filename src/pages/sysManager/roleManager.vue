@@ -15,19 +15,20 @@
                 </el-button-group>
             </div>
 			<el-table :data="tableData" style="width: 100%" border v-loading="loading">
-				<el-table-column prop="xxx" label="角色"></el-table-column>
-				<el-table-column prop="xxx" label="描述"></el-table-column>
-				<el-table-column prop="xxx" label="创建时间"></el-table-column>
+				<el-table-column prop="roleName" label="角色"></el-table-column>
+				<el-table-column prop="roleDesc" label="描述"></el-table-column>
+				<el-table-column prop="createTime" label="创建时间"></el-table-column>
 				<el-table-column label="操作" width="200">
 					<template slot-scope="scope">
 						<el-button
 							size="mini"
 							type="primary"
-							@click="alert(scope.row.id)" plain>编辑</el-button>
+							@click="listEditor(scope.row.id)" plain>编辑</el-button>
 						<el-button
 							size="mini"
 							type="danger"
-							@click="alert(scope.row.id)" plain>删除</el-button>
+							v-if="scope.row.system != 1"
+							@click="listDelete(scope.row.id)" plain>删除</el-button>
 					</template>
 				</el-table-column>
 			</el-table>
@@ -46,39 +47,35 @@
 			</div>
 		</el-card>
 
-        <el-dialog v-if="dialogRoleAdd" title="新增角色" :visible.sync="dialogRoleAdd" append-to-body width="900px">
+        <el-dialog v-if="dialogRoleAdd" title="新增角色" :visible.sync="dialogRoleAdd" append-to-body width="800px">
             <roleAdd @closeDialog="closeDialog" @parentGetDataList="getDataList"></roleAdd>
+        </el-dialog>
+        <el-dialog v-if="dialogRoleEditor" title="编辑角色" :visible.sync="dialogRoleEditor" append-to-body width="800px">
+            <roleEditor @closeDialog="closeDialog" @parentGetDataList="getDataList" :id="editorId"></roleEditor>
         </el-dialog>
 
 	</div>
 </template>
 
 <script>
+import api from '@/api/sysManager'
 import roleAdd from './roleAdd'
+import roleEditor from './roleEditor'
+
 export default {
 	components: {
-		roleAdd
+		roleAdd,
+		roleEditor
 	},
 	data () {
 		return {
+			editorId: null, // 编辑存值
 			pageIndex: 1, // 当前页码
 			pageSize: 10, // 页码大小
 			dataTotal: 0, // 数据总数
 			loading: true,
-			tableData: [{
-				id: 1,
-				xxx: 'xxx'
-			},{
-				id: 2,
-				xxx: 'xxx2'
-			},{
-				id: 3,
-				xxx: 'xxx3'
-			}],
-			filterForm: {
-				brand: '0', // 品牌
-				clear_user: ''
-			},
+			tableData: [],
+			dialogRoleEditor: false, // 编辑
 			dialogRoleAdd: false // 新增店铺dialog
 		}
 	},
@@ -100,8 +97,60 @@ export default {
 			this[name] = false;
 		},
 		getDataList() { // 分页获取
-			this.loading = false;
-		}
+			api.getRolePage({
+				pageIndex: this.pageIndex,
+				pageSize: this.pageSize
+			}).then((result) => {
+				if (result.code == 0) {
+					this.tableData = result.data.list;
+					this.dataTotal = result.data.total;
+				} else {
+					this.$message({
+						type: 'error',
+						showClose: true,
+						message: result.msg
+					})
+				}
+				this.loading = false;
+			})
+		},
+		listEditor(id) {
+            this.editorId = Number(id);
+            this.dialogRoleEditor = true;
+		},
+        listDelete(id) { // 删除
+            
+            this.$confirm('确定要删除该角色吗?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                
+                api.deleteRole({
+                    id: id
+                }).then((result) => {
+                    if (result.code == 0) {
+                        this.$message({
+                            type: 'success',
+                            showClose: true,
+                            message: '删除成功！',
+                            duration: 1500,
+                            onClose: () => {
+                                this.getDataList();
+                            }
+                        })
+                    } else {
+                        this.$message({
+                            type: 'error',
+                            showClose: true,
+                            message: result.msg
+                        })
+                    }
+                })
+
+            }).catch(() => {     
+            });
+        }
 	}
 }
 </script>

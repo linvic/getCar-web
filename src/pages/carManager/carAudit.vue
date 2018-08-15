@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<el-form ref="form" status-icon :rules="form_rules" :model="form" label-width="120px">
-
+			
 			<el-row>
 				<el-col :span="12">
 					<el-form-item label="用户编号">
